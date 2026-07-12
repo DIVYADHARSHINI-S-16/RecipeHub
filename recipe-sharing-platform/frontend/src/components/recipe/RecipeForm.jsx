@@ -143,7 +143,7 @@ const RecipeForm = ({ initialData, onSubmit, submitLabel = "Publish Recipe", loa
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Servings</label>
           <div className="relative">
-            <FiUsers className="absolute left-3 top-3.5 text-gray-400" />
+            <FiUsers className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500" />
             <input
               type="number"
               min={1}
