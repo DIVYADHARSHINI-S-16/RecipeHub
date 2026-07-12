@@ -20,7 +20,7 @@ function App() {
   return (
     <ThemeProvider>
     <AuthProvider>
-      <BrowserRouter basename="/RecipeHub">
+      <BrowserRouter>
         <Toaster position="top-center" />
         <PageWrapper>
           <Navbar />
