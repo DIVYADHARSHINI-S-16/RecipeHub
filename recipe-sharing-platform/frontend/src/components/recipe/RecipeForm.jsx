@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiPlus, FiX, FiClock } from "react-icons/fi";
+import { FiPlus, FiX, FiClock, FiUsers } from "react-icons/fi";
 import ImageUpload from "../common/ImageUpload";
 import { CATEGORIES } from "../../utils/constants";
 
@@ -9,6 +9,7 @@ const emptyDefaults = {
   ingredients: [""],
   steps: [""],
   cookingTime: "",
+  servings: "",
   category: "",
   image: null,
 };
@@ -45,6 +46,8 @@ const RecipeForm = ({ initialData, onSubmit, submitLabel = "Publish Recipe", loa
     if (form.steps.filter((s) => s.trim()).length === 0) newErrors.steps = "Add at least one step";
     if (!form.cookingTime || Number(form.cookingTime) <= 0)
       newErrors.cookingTime = "Enter a valid cooking time";
+    if (!form.servings || Number(form.servings) <= 0)
+      newErrors.servings = "Enter a valid number of servings";
     if (!form.category) newErrors.category = "Select a category";
 
     setErrors(newErrors);
@@ -61,6 +64,7 @@ const RecipeForm = ({ initialData, onSubmit, submitLabel = "Publish Recipe", loa
       ingredients: form.ingredients.map((i) => i.trim()).filter(Boolean),
       steps: form.steps.map((s) => s.trim()).filter(Boolean),
       cookingTime: Number(form.cookingTime),
+      servings: Number(form.servings),
       category: form.category,
       image: form.image || { url: "", publicId: "" },
     });
@@ -102,7 +106,7 @@ const RecipeForm = ({ initialData, onSubmit, submitLabel = "Publish Recipe", loa
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Category</label>
           <select
@@ -134,6 +138,22 @@ const RecipeForm = ({ initialData, onSubmit, submitLabel = "Publish Recipe", loa
             />
           </div>
           {errors.cookingTime && <p className="text-red-500 text-sm mt-1">{errors.cookingTime}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Servings</label>
+          <div className="relative">
+            <FiUsers className="absolute left-3 top-3.5 text-gray-400" />
+            <input
+              type="number"
+              min={1}
+              value={form.servings}
+              onChange={(e) => handleChange("servings", e.target.value)}
+              placeholder="e.g. 4"
+              className="input-field pl-10"
+            />
+          </div>
+          {errors.servings && <p className="text-red-500 text-sm mt-1">{errors.servings}</p>}
         </div>
       </div>
 

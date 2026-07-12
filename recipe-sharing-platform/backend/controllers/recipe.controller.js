@@ -2,9 +2,9 @@ import Recipe from "../models/Recipe.model.js";
 
 export const createRecipe = async (req, res, next) => {
   try {
-    const { title, description, ingredients, steps, cookingTime, category, image } = req.body;
+    const { title, description, ingredients, steps, cookingTime, servings, category, image } = req.body;
 
-    if (!title || !description || !ingredients || !steps || !cookingTime || !category) {
+    if (!title || !description || !ingredients || !steps || !cookingTime || !servings || !category) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -14,6 +14,7 @@ export const createRecipe = async (req, res, next) => {
       ingredients: Array.isArray(ingredients) ? ingredients : ingredients.split(",").map((i) => i.trim()),
       steps: Array.isArray(steps) ? steps : steps.split(",").map((s) => s.trim()),
       cookingTime,
+      servings,
       category,
       image: image || { url: "", publicId: "" },
       author: req.user._id,
@@ -89,7 +90,7 @@ export const updateRecipe = async (req, res, next) => {
       return res.status(403).json({ message: "Not authorized to update this recipe" });
     }
 
-    const { title, description, ingredients, steps, cookingTime, category, image } = req.body;
+    const { title, description, ingredients, steps, cookingTime, servings, category, image } = req.body;
 
     recipe.title = title ?? recipe.title;
     recipe.description = description ?? recipe.description;
@@ -104,6 +105,7 @@ export const updateRecipe = async (req, res, next) => {
         : steps.split(",").map((s) => s.trim())
       : recipe.steps;
     recipe.cookingTime = cookingTime ?? recipe.cookingTime;
+    recipe.servings = servings ?? recipe.servings;
     recipe.category = category ?? recipe.category;
     recipe.image = image ?? recipe.image;
 
