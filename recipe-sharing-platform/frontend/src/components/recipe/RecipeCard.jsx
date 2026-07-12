@@ -1,9 +1,19 @@
 import { Link } from "react-router-dom";
-import { FiClock, FiUser } from "react-icons/fi";
+import { FiClock, FiUser, FiHeart } from "react-icons/fi";
+import useAuth from "../../hooks/useAuth";
 
 const RecipeCard = ({ recipe }) => {
+  const { isAuthenticated, isFavorited, toggleFavorite } = useAuth();
   const fallbackImage =
     "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=500&auto=format&fit=crop&q=60";
+
+  const favorited = isFavorited(recipe._id);
+
+  const handleFavoriteClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavorite(recipe._id);
+  };
 
   return (
     <Link
@@ -19,6 +29,18 @@ const RecipeCard = ({ recipe }) => {
         <span className="absolute top-3 left-3 bg-primary-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
           {recipe.category}
         </span>
+        {isAuthenticated && (
+          <button
+            onClick={handleFavoriteClick}
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 dark:bg-gray-900/90 flex items-center justify-center hover:scale-110 transition-transform"
+            aria-label="Toggle favorite"
+          >
+            <FiHeart
+              size={16}
+              className={favorited ? "fill-red-500 text-red-500" : "text-gray-500"}
+            />
+          </button>
+        )}
       </div>
 
       <div className="p-4 flex flex-col flex-1">

@@ -19,6 +19,7 @@ export const getProfile = async (req, res, next) => {
       bio: user.bio,
       createdAt: user.createdAt,
       recipeCount,
+      favoriteCount: user.favorites.length,
     });
   } catch (error) {
     next(error);
@@ -90,6 +91,48 @@ export const changePassword = async (req, res, next) => {
     await user.save();
 
     res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggleFavorite = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const { recipeId } = req.params;
+
+    const recipe = await Recipe.findById(recipeId);
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    const isFavorited = user.favorites.some((id) => id.toString() === recipeId);
+
+    if (isFavorited) {
+      user.favorites = user.favorites.filter((id) => id.toString() !== recipeId);
+    } else {
+      user.favorites.push(recipeId);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      favorites: user.favorites,
+      isFavorited: !isFavorited,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getFavorites = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).populate({
+      path: "favorites",
+      populate: { path: "author", select: "name avatar" },
+    });
+
+    res.status(200).json(user.favorites);
   } catch (error) {
     next(error);
   }

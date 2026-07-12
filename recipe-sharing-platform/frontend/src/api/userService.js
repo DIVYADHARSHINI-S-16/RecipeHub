@@ -24,3 +24,13 @@ export const deleteRecipeById = async (id) => {
   const { data } = await axiosInstance.delete(`/recipes/${id}`);
   return data;
 };
+
+export const toggleFavoriteRequest = async (recipeId) => {
+  const { data } = await axiosInstance.post(`/users/favorites/${recipeId}`);
+  return data;
+};
+
+export const getFavoritesRequest = async () => {
+  const { data } = await axiosInstance.get("/users/favorites");
+  return data;
+};
