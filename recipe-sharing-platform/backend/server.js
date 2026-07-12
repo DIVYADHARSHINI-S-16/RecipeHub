@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes.js";
 import recipeRoutes from "./routes/recipe.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import reviewRoutes from "./routes/review.routes.js";
 import { notFound, errorHandler } from "./middleware/error.middleware.js";
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 // Health check
 app.get("/", (req, res) => {

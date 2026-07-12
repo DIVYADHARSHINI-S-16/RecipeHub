@@ -4,6 +4,7 @@ import { FiClock, FiUser, FiEdit2, FiTrash2, FiArrowLeft, FiCheck } from "react-
 import toast from "react-hot-toast";
 import Loader from "../components/common/Loader";
 import ConfirmDialog from "../components/common/ConfirmDialog";
+import Reviews from "../components/recipe/Reviews";
 import { fetchRecipeById, deleteRecipeRequest } from "../api/recipeService";
 import useAuth from "../hooks/useAuth";
 
@@ -137,7 +138,7 @@ const RecipeDetails = () => {
           </ol>
         </div>
       </div>
-
+      <Reviews recipeId={recipe._id} />
       <ConfirmDialog
         open={showConfirm}
         title="Delete Recipe"

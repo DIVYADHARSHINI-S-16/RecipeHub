@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FiEdit2, FiMail, FiCalendar, FiBook, FiPlus, FiLock } from "react-icons/fi";
+import { FiEdit2, FiMail, FiCalendar, FiBook, FiPlus, FiLock, FiHeart } from "react-icons/fi";
 import toast from "react-hot-toast";
 import Loader from "../components/common/Loader";
 import ConfirmDialog from "../components/common/ConfirmDialog";
 import MyRecipeCard from "../components/recipe/MyRecipeCard";
+import RecipeCard from "../components/recipe/RecipeCard";
 import {
   getMyProfile,
   updateMyProfile,
   changeMyPassword,
   getMyRecipes,
   deleteRecipeById,
+  getFavoritesRequest,
 } from "../api/userService";
 import useAuth from "../hooks/useAuth";
 
@@ -19,7 +21,11 @@ const Profile = () => {
 
   const [profile, setProfile] = useState(null);
   const [recipes, setRecipes] = useState([]);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+
+  const [activeTab, setActiveTab] = useState("myRecipes");
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({ name: "", bio: "" });
@@ -46,9 +52,27 @@ const Profile = () => {
     }
   };
 
+  const loadFavorites = async () => {
+    setFavoritesLoading(true);
+    try {
+      const data = await getFavoritesRequest();
+      setFavorites(data);
+    } catch (error) {
+      toast.error("Failed to load saved recipes");
+    } finally {
+      setFavoritesLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "savedRecipes" && favorites.length === 0) {
+      loadFavorites();
+    }
+  }, [activeTab]);
 
   const handleProfileSave = async (e) => {
     e.preventDefault();
@@ -131,6 +155,9 @@ const Profile = () => {
                   </span>
                   <span className="flex items-center gap-1">
                     <FiBook /> {profile.recipeCount} {profile.recipeCount === 1 ? "recipe" : "recipes"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <FiHeart /> {profile.favoriteCount ?? 0} saved
                   </span>
                 </div>
                 {profile.bio && <p className="text-gray-600 dark:text-gray-300 mt-3">{profile.bio}</p>}
@@ -216,30 +243,81 @@ const Profile = () => {
         )}
       </div>
 
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">My Recipes</h2>
-        <Link
-          to="/recipes/create"
-          className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+      <div className="flex items-center gap-2 border-b border-gray-200 dark:border-gray-700 mb-6">
+        <button
+          onClick={() => setActiveTab("myRecipes")}
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition ${
+            activeTab === "myRecipes"
+              ? "border-primary-600 text-primary-600"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          }`}
         >
-          <FiPlus /> New Recipe
-        </Link>
+          My Recipes
+        </button>
+        <button
+          onClick={() => setActiveTab("savedRecipes")}
+          className={`px-4 py-2.5 text-sm font-medium border-b-2 transition ${
+            activeTab === "savedRecipes"
+              ? "border-primary-600 text-primary-600"
+              : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+          }`}
+        >
+          Saved Recipes
+        </button>
       </div>
 
-      {recipes.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
-          <p className="text-4xl mb-3">📝</p>
-          <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">You haven't created any recipes yet.</p>
-          <Link to="/recipes/create" className="text-primary-600 font-semibold hover:underline">
-            Create your first recipe
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {recipes.map((recipe) => (
-            <MyRecipeCard key={recipe._id} recipe={recipe} onDelete={setDeleteTarget} />
-          ))}
-        </div>
+      {activeTab === "myRecipes" && (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">My Recipes</h2>
+            <Link
+              to="/recipes/create"
+              className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition"
+            >
+              <FiPlus /> New Recipe
+            </Link>
+          </div>
+
+          {recipes.length === 0 ? (
+            <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+              <p className="text-4xl mb-3">📝</p>
+              <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">You haven't created any recipes yet.</p>
+              <Link to="/recipes/create" className="text-primary-600 font-semibold hover:underline">
+                Create your first recipe
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recipes.map((recipe) => (
+                <MyRecipeCard key={recipe._id} recipe={recipe} onDelete={setDeleteTarget} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {activeTab === "savedRecipes" && (
+        <>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-6">Saved Recipes</h2>
+
+          {favoritesLoading ? (
+            <Loader />
+          ) : favorites.length === 0 ? (
+            <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-md">
+              <p className="text-4xl mb-3">💛</p>
+              <p className="text-gray-500 dark:text-gray-400 font-medium mb-4">You haven't saved any recipes yet.</p>
+              <Link to="/" className="text-primary-600 font-semibold hover:underline">
+                Browse recipes
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {favorites.map((recipe) => (
+                <RecipeCard key={recipe._id} recipe={recipe} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <ConfirmDialog
